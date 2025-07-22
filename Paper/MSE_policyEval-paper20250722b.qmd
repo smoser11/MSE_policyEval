@@ -134,6 +134,13 @@ knitr::opts_chunk$set(fig.path="figure/graphics-",
 
 \newpage
 
+**POSSIBLE LITERATURE**
+
+Banks & Mokel (2023) reflect on advances in MSE for human trafficking and emphasize the importance of moving beyond naive assumptions when applying MSE in policy contexts (Banks & Mokel, 2023).
+
+Zhang & Larsen (2021) discuss using MSE for policy advocacy and service design in the context of human trafficking, highlighting its value but also its limitations when data structures evolve over time (Zhang & Larsen, 2021).
+
+
 
 # Introduction
 
