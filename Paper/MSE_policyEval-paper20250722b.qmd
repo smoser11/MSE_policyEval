@@ -136,9 +136,13 @@ knitr::opts_chunk$set(fig.path="figure/graphics-",
 
 **POSSIBLE LITERATURE**
 
-Banks & Mokel (2023) reflect on advances in MSE for human trafficking and emphasize the importance of moving beyond naive assumptions when applying MSE in policy contexts (Banks & Mokel, 2023).
+Banks & Mokel (2023) @bank23-multiple reflect on advances in MSE for human trafficking and emphasize the importance of moving beyond naive assumptions when applying MSE in policy contexts (Banks & Mokel, 2023).
 
-Zhang & Larsen (2021) discuss using MSE for policy advocacy and service design in the context of human trafficking, highlighting its value but also its limitations when data structures evolve over time (Zhang & Larsen, 2021).
+@zhan21-estimating  Zhang & Larsen (2021) discuss using MSE for policy advocacy and service design in the context of human trafficking, highlighting its value but also its limitations when data structures evolve over time (Zhang & Larsen, 2021).
+
+
+@ma21-causal
+
 
 
 
@@ -185,7 +189,7 @@ Causal inference via Difference-in-Differences (DiD) or related methods assumes 
 * **Prevalence Control:** Set true prevalence (e.g., 5%) and simulate list inclusion for those individuals.
     
 
-Each individual is represented by a binary vector (e.g., `[1, 0, 1]` means captured on Lists A and C).
+Each individual is represented by a binary vector (e.g., `[1, 0, 1]` means captured on Lists $A$ and $C$ e.g. the first and third lists).
 
 
 ## Capture Models
@@ -371,7 +375,7 @@ This model is exchangeable over individuals and highly flexible, adapting the co
 
 \newpage
 
-# Appendices
+# Appendices {-}
 
 * Formal model definitions  
 * Code snippets in R/Python  
