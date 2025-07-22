@@ -132,48 +132,46 @@ knitr::opts_chunk$set(fig.path="figure/graphics-",
 
 <!-- [^11]: <a name="footnote1"></a>Your detailed footnote text goes here. -->
 
+\newpage
 
 
-## Introduction
+# Introduction
 
-
-### **1.1 Background**
+## Background
 
 Multiple Systems Estimation (MSE) is widely used to estimate hidden population sizes—such as victims of modern slavery—using overlap in capture across different administrative or NGO lists. In anti-slavery efforts by organizations like IJM, population estimates inform donor decisions, intervention targeting, and country-level impact evaluations.
 
 However, interventions often change not just victimization but the **way people are recorded**, e.g. by increasing list overlap through improved coordination. These measurement artifacts threaten both MSE’s validity and any downstream causal inferences.
 
-### **1.2 Motivating Concern**
+## Motivating Concern
 
 If a post-treatment increase in list overlap leads to lower MSE estimates—despite no true reduction in the population—MSE may spuriously indicate impact. Conversely, real reductions in prevalence may be masked by offsetting structural changes in the data.
 
 > “Without controlling for measurement artifacts (overlap changes), estimated prevalence changes can mislead causal inference.”
 
-### **1.3 Key Assumption Under Threat**
+## Key Assumption Under Threat
 
 Causal inference via Difference-in-Differences (DiD) or related methods assumes **SUTVA**—that the treatment affects only outcomes, not how outcomes are measured. When treatment affects **list formation, overlap, or coverage**, this assumption fails.
 
-### **1.4 Prior Work**
+## Prior Work
 
-* @lum13-applications  and @bine22-reliability show that violations in list independence or inclusion assumptions cause serious bias in MSE estimates.
-    
-* @far21-multiple  show this empirically in Romanian anti-slavery MSE work.
-    
-* @boes22-reassessing and @kain17-review  critique the fragility of SUTVA in quasi-experimental designs, urging alternative assumptions or diagnostics.
-    
+* @lum13-applications and @bine22-reliability show that violations in list independence or inclusion assumptions cause serious bias in MSE estimates.  
+* @far21-multiple show this empirically in Romanian anti-slavery MSE work.  
+* @boes22-reassessing and @kain17-review critique the fragility of SUTVA in quasi-experimental designs, urging alternative assumptions or diagnostics.
 
-### **1.5 Contributions**
+## Contributions
 
 * We introduce simulation scenarios showing how structural changes—independent of true prevalence—can bias MSE.
 * We evaluate four multivariate binary models to simulate capture processes with controllable overlap and dependence.
 * We relate MSE errors to causal inference threats and offer guidelines for quasi-experimental MSE under structural evolution.
-    
 
 
 
-## Methodology
 
-### **2.1 Simulation Framework**
+# Methodology
+
+## Simulation Framework
+
 
 * **Population (N):** 1000 hidden individuals
 * **Lists (K):** 3 or 4 (e.g., Police, NGO, Immigration, Medical)
@@ -182,17 +180,18 @@ Causal inference via Difference-in-Differences (DiD) or related methods assumes 
 
 Each individual is represented by a binary vector (e.g., `[1, 0, 1]` means captured on Lists A and C).
 
-### **2.2 Capture Models**
+
+## Capture Models
 
 
 We consider four distinct modeling strategies for the joint distribution over binary list-inclusion vectors $\mathbf{Z}_i = (Z_{i1}, \ldots, Z_{iK}) \in \{0,1\}^K$, capturing various forms of dependence among the $K$ lists. These include both exchangeable and non-exchangeable approaches and range from parametric to nonparametric Bayesian models.
 
 
 
-### Log-linear Models (Frequentist & Bayesian)
 
+## Log-linear Models (Frequentist & Bayesian)
 
-#### **Model 1: Log-linear Model**
+### Model: Log-linear Model
 
 * Full model with interaction terms (e.g., 2-list, 3-list overlaps).
 * Strength: interpretable, common in MSE literature.
@@ -209,11 +208,9 @@ where the sum is over all subsets $s$ of $\{1, \ldots, K\}$, and $\theta_s \in \
 In the Bayesian setting, Gaussian priors $\theta_s \sim \mathcal{N}(0, \sigma^2)$ can be placed on the interaction terms to induce regularization. Due to the exponential growth in the number of parameters ($2^K$), these models are practical only for small $K$. Computational inference can proceed via Markov Chain Monte Carlo (MCMC), often using data augmentation or Metropolis-Hastings steps.
 
 
-### Exchangeable Binary Arrays with Finite Sufficient Statistics
+## Exchangeable Binary Arrays with Finite Sufficient Statistics
 
-
-
-#### **Model 2: Exchangeable Binary Arrays**
+### Model: Exchangeable Binary Arrays
 
 - Captures average dependence between lists without needing all high-order terms.
 - Strength: lower complexity, works with fewer observations.
@@ -229,11 +226,11 @@ Inference proceeds by choosing a parametric or semiparametric form for $f(\cdot)
 
 
 
-### Pólya-Gamma Augmented Multivariate Probit
 
+## Pólya-Gamma Augmented Multivariate Probit
 
+### Model: Pólya-Gamma Augmented Multivariate Probit
 
-#### **Model 3: Pólya-Gamma Augmented Multivariate Probit**
 
 - Latent Gaussian structure; correlation between lists through shared latent trait.
 - Strength: smooths estimates, handles moderate $K$ (lists).
@@ -249,9 +246,10 @@ This induces a joint distribution over $\mathbf{Z}_i \in \{0,1\}^K$ where depend
 Priors over $\Sigma$ can be specified using the LKJ distribution for correlation matrices or inverse-Wishart priors for full covariance matrices. This model is parsimonious, interpretable, and suitable for moderate to large $K$.
 
 
-### Canonical Bayesian Nonparametric Model: Dirichlet Process Mixture of Product Bernoullis
+## Canonical Bayesian Nonparametric Model: Dirichlet Process Mixture of Product Bernoullis
 
-#### **Model 4: Dirichlet Process Mixture of Product Bernoullis**
+### Model: Dirichlet Process Mixture of Product Bernoullis
+
 
 - Allows for heterogeneous “types” of individuals with different capture profiles.
 - Strength: flexible, nonparametric.
@@ -271,141 +269,83 @@ This model is exchangeable over individuals and highly flexible, adapting the co
 
 
 
+## Scenario Definitions
 
+### Scenario 1: False Positive
 
-    
-
-### **2.3 Scenario Definitions**
-
-#### **Scenario 1: False Positive**
-
-* **True N:** 1000 pre, 1000 post.
-    
-* **Overlap Change:** pairwise correlation between lists rises from 0.0 to 0.6.
-    
+* **True N:** 1000 pre, 1000 post.  
+* **Overlap Change:** pairwise correlation between lists rises from 0.0 to 0.6.  
 * **Expected Result:** MSE shows drop in estimated N (e.g., from 980 → 700) despite no true change.
-    
 
-#### **Scenario 2: False Negative**
+### Scenario 2: False Negative
 
-* **True N:** 1000 → 600 (real reduction).
-    
-* **Overlap also increases** (e.g., ρ = 0 → 0.6).
-    
+* **True N:** 1000 → 600 (real reduction).  
+* **Overlap also increases** (e.g., ρ = 0 → 0.6).  
 * **Expected Result:** MSE estimate shows smaller decline (e.g., 980 → 720), or possibly none.
-    
 
-#### ➕ **Optional Scenario 3: Structural Perturbation**
+### Optional Scenario 3: Structural Perturbation
 
-* One list is removed, or a subnational list is treated as national.
-    
+* One list is removed, or a subnational list is treated as national.  
 * Tests effect of **coverage misspecification**.
-    
 
-#### ➕ **Optional Scenario 4: Spillover**
+### Optional Scenario 4: Spillover
 
-* Agency coordination in one country causes better overlap in another.
-    
+* Agency coordination in one country causes better overlap in another.  
 * Tests **network-based SUTVA violation**.
-    
 
-### **2.4 Metrics**
+## Metrics
 
-* **Bias:** $\hat{N} - N$
-    
-* **RMSE:** Across replications
-    
-* **False positive/negative rate:** In detecting real change
-    
+* **Bias:** $\hat{N} - N$  
+* **RMSE:** Across replications  
+* **False positive/negative rate:** In detecting real change  
 * **Coverage:** % of simulations where CI includes true N
-    
 
+# Results
 
-## Results
+## Scenario 1
 
-
-
-### **3.1 Scenario 1**
-
-* MSE underestimates N when overlap rises.
-    
-* Error scales with degree of list correlation.
-    
+* MSE underestimates N when overlap rises.  
+* Error scales with degree of list correlation.  
 * Example: At $\rho = 0.6$, estimate is 25% too low on average.
-    
 
-### **3.2 Scenario 2**
+## Scenario 2
 
-* True prevalence drops, but MSE misses effect due to offsetting overlap.
-    
+* True prevalence drops, but MSE misses effect due to offsetting overlap.  
 * Estimated declines are ~50% of true magnitude.
-    
 
-### **3.3 Model Comparisons**
 
-* Log-linear models perform worst under sparse overlap shifts.
-    
-* Pólya-Gamma models more stable, but coverage still poor.
-    
+## Model Comparisons
+
+* Log-linear models perform worst under sparse overlap shifts.  
+* Pólya-Gamma models more stable, but coverage still poor.  
 * Dirichlet Process shows best robustness, but least interpretability.
-    
-
-* * *
-
-## Discussion
 
 
-### **4.1 Causal Inference with Structural Change**
+# Discussion
 
-* MSE can’t be used for causal inference unless structural list changes are controlled.
-    
+## Causal Inference with Structural Change
+
+* MSE can’t be used for causal inference unless structural list changes are controlled.  
 * SUTVA violations here are **systematic, not random**—not merely noise, but caused by the treatment itself.
-    
 
-### **4.2 Relation to Literature**
+## Relation to Literature
 
 * @far21-multiple  observe this empirically in Romania.
-    
-* **Boesche (2020)** proposes SMUTVA (weaker assumptions).
-    
-* **Kazunari (2017)** emphasizes need for **sensitivity analyses**—our simulations fulfill this call.
+* @boes22-reassessing proposes SMUTVA (weaker assumptions).
+* @kain17-review  emphasizes need for **sensitivity analyses**—our simulations fulfill this call.
     
 
-### **4.3 Practical Implications**
+## Practical Implications
 
-* Never interpret MSE declines as treatment effects without evaluating structural list shifts.
-    
-* Develop diagnostics for overlap structure (e.g., correlation matrix, list dependency graphs).
-    
+* Never interpret MSE declines as treatment effects without evaluating structural list shifts.  
+* Develop diagnostics for overlap structure (e.g., correlation matrix, list dependency graphs).  
 * Encourage multi-method approaches (e.g., triangulating with survey, NSUM).
-    
 
-* * *
+# Conclusion
 
-## Conclusion
-
-
-* MSE estimates are highly sensitive to structural features of list overlap.
-    
-* Without accounting for SUTVA violations, causal claims from MSE are often invalid.
-    
+* MSE estimates are highly sensitive to structural features of list overlap.  
+* Without accounting for SUTVA violations, causal claims from MSE are often invalid.  
 * We call for careful modeling, simulation-based diagnostics, and new methodological tools at the intersection of MSE and causal inference.
-    
-
-* * *
-
-# Appendices
-
-
-* Formal model definitions
-    
-* Code snippets in R/Python
-    
-* Convergence diagnostics
-    
-* Real-world IJM country scenarios (simulated data)
-    
-    
 
 
 
@@ -413,12 +353,24 @@ This model is exchangeable over individuals and highly flexible, adapting the co
 
 
 
-
-
+\newpage
 
 # References {-}
 
 ::: {#refs}
 :::
+
+
+
+\newpage
+
+# Appendices
+
+* Formal model definitions  
+* Code snippets in R/Python  
+* Convergence diagnostics  
+* Real-world IJM country scenarios (simulated data)
+
+
 
 
