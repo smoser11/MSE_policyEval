@@ -1,0 +1,523 @@
+---
+title: "Scientific Research Note and Draft Prevalence Research Protocol"
+subtitle: "Baseline Measurement for IJM's European Anti-Trafficking Program"
+author: "Rights Lab, University of Nottingham"
+date: "15 March 2025"
+
+# Bibliography
+bibliography: references.bib
+csl: apa.csl
+cite-method: biblatex  # for PDF, overridden in HTML/docx
+
+# BibLaTeX (PDF-only) options
+biblatexoptions:
+  - style=apa
+  - sorting=nyt
+
+# LaTeX document options
+fontsize: 12pt
+fontfamily: mathpazo
+geometry: margin=1in
+subparagraph: true
+
+header-includes:
+  - \usepackage{float}
+  
+
+execute:
+  warning: false
+  message: false
+
+format:
+  pdf:
+    documentclass: article
+    pdf-engine: xelatex
+    number-sections: true
+    toc: true
+    toc-depth: 3
+    colorlinks: true
+    linkcolor: black       # TOC, section refs
+    citecolor: RoyalBlue   # Citations
+    urlcolor: BrickRed     # Raw URLs
+    fig-pos: "H"
+    include-in-header:
+      text: |
+        \usepackage{amsmath}
+        \usepackage{amsfonts}
+        \usepackage{amssymb}
+        \usepackage{amsthm}
+        \newtheorem{proposition}{Proposition}
+  html:
+    toc: true
+    toc-depth: 3
+    embed-resources: true
+    theme: cosmo
+    css: [css/columns.css, css/seminar_v6.css, css/Qmd_noPublished.css]
+    cite-method: citeproc
+    csl: apa.csl
+    link-external-icon: true
+    link-external-newwindow: true
+  docx:
+    number-sections: true
+    highlight-style: github
+    cite-method: citeproc
+    csl: apa.csl
+    # reference-doc: custom-reference.docx
+---
+
+
+
+```{r setup, include=FALSE}
+# Ensure fs is available
+if (!requireNamespace("fs", quietly = TRUE)) install.packages("fs")
+
+# Define paths
+home_dir <- Sys.getenv("HOME")
+bib_source <- fs::path(home_dir, "Dropbox", "Bibliog", "scottAll5-BBL-URLdoi2024.bib")
+bib_target <- "references.bib"
+
+# (Re)create bibliography symlink
+if (fs::file_exists(bib_target)) fs::file_delete(bib_target)
+fs::link_create(bib_source, bib_target)
+message("- (Re)created bibliography symlink")
+
+# CSS setup
+fs::dir_create("css")
+css_dir <- fs::path(home_dir, "Dropbox", "LaTeX", "Stationary", "Rmakrdown")
+css_files <- c("columns.css", "seminar_v6.css", "Qmd_noPublished.css")
+
+for (file in css_files) {
+  source <- fs::path(css_dir, file)
+  target <- fs::path("css", file)
+  if (fs::file_exists(target)) fs::file_delete(target)
+  fs::link_create(source, target)
+  message(paste("- (Re)created symlink for", file))
+}
+
+# Download CSL file if missing
+if (!fs::file_exists("apa.csl")) {
+  download.file(
+    "https://raw.githubusercontent.com/citation-style-language/styles/master/apa.csl",
+    "apa.csl"
+  )
+  message("- Downloaded APA citation style")
+}
+
+message("Setup complete!")
+```
+
+```{r setupKF, include=FALSE, eval=FALSE}
+knitr::opts_chunk$set(fig.path="figure/graphics-", 
+                      cache.path="cache/graphics-", 
+                      fig.align="center",
+                      external=TRUE,
+                      warning=FALSE,
+                      fig.pos="H",
+                      number_sections = FALSE)
+
+```
+
+```{r setup2, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE) #fig.path="~/Dropbox/teaching/Notts/figures/", base.dir="~/Dropbox/teaching/Notts/figures/")
+knitr::opts_knit$set(root.dir = 					 "~/Dropbox/teaching/Notts/QSTEP/dataSets/data-teaching/") #"~/Dropbox/teaching/Notts/figures/") 
+options(tinytex.verbose = TRUE)
+```
+
+<!-- NOTES: (1)custom placement of Endnotes only works for `html_document(2)` -- not pdf_document   (2) boxes added -> uses `\usepackage{framed}` for LaTeX-ing -- see https://bookdown.org/yihui/rmarkdown-cookbook/custom-blocks.html  (3)    -->
+
+
+As discussed in the [this footnote](#footnote1)  the results are significant.[^11]
+
+[^11]: <a name="footnote1"></a>Your detailed footnote text goes here.
+
+
+
+
+```{r}
+library(tidyverse)
+
+data <- iris %>% as_tibble()
+
+plots <- data %>%
+  group_nest(Species) %>% 
+  deframe() %>% 
+  map(., ~ {
+    ggplot(.x, aes(x = Sepal.Length, y = Sepal.Width)) + 
+      geom_point() +
+      theme_bw(
+        base_size = 18 # to increase the size of the plot elements
+      )
+  }) 
+
+```
+
+# Iris Plots 
+
+:::: {.column-screen}
+::: {.panel-tabset}
+```{r}
+#| results: asis
+#| fig-width: 14
+#| fig-height: 6
+
+iwalk(plots, ~ {
+  cat('## ', .y, '\n\n')
+  
+  print(.x)
+  
+  cat('\n\n')
+  
+})
+
+```
+
+:::
+:::: 
+
+
+
+---
+
+Please explain these R commands in plane english, step by step:
+
+(Optional: if you want to learn more about these commands, step-by-step, please see this footnote.[^un1f])
+
+[^un1f]:
+	:::: {.infobox2 .unpack4}
+	Let's unpack this!
+	
+	1. "take the result of the `ds %>% dplyr::select(glbcc_risk, ideol, income, age)` and drop all the missing values (`drop_na()`)"
+	2. "finally, correlate all the remaining variable values (via the `cor()` command)"
+	
+	::::
+
+
+(Optional: if you want to learn more about [these commands, step-by-step](#foot1), please see this footnote.[^f1])
+
+[^f1]: 
+	:::: {.infobox2 .unpack4}
+	<a name="foot1"></a>
+	Let's unpack this!
+	
+	1. "take the result of the `ds %>% dplyr::select(glbcc_risk, ideol, income, age)` and drop all the missing values (`drop_na()`)"
+	2. "finally, correlate all the remaining variable values (via the `cor()` command)"
+	
+	::::
+
+
+See Table \@ref(tab:mtcars)
+
+```{r mtcars}
+knitr::kable(mtcars[1:5, 1:5], caption = "A caption")
+```
+
+
+COMPUTER LAB in RMarkdown:
+
+<https://stackoverflow.com/questions/61620007/cross-referencing-a-table-or-figure-in-rmarkdown-in-the-caption-of-another-figur>
+
+
+<https://rmd4sci.njtierney.com/start>
+
+
+# Part B: Demonstration {-}
+
+Here is some sample code:
+
+```{r sampleCode, eval = TRUE, messages	= FALSE, warning=FALSE}
+library(tidyverse)
+
+```
+
+
+Here is a sample footnote.^[Footnote here.]
+
+Lets unpack this code-chunk for \ref{sampleCode} and \@ref(sampleCode) with a multi-line footnote.[^1]
+
+[^1]: First line of foot 1.
+
+	Second line of foot 1. 
+	
+After footnote1.
+
+Here is a sample footnote with 'unpack.'[^un1]
+
+
+[^un1]:
+	:::: {.infobox2 .unpack4}
+	Before interpreting the results, lets understand the R: commands used.  First, remember that `%>%` is a kind of "pipping" operator that in plain language can the read as 'then.'  So, `ds %>% dplyr::select(glbcc_risk, ideol, income, age)`  means "start with the data-set `ds` and _then_ apply the function `select()` in the library `dplyr` to the variables `glbcc_risk`, `ideol`, `income`, and  `age`."  So the next two lines mean:
+	
+	1. "take the result of the `ds %>% dplyr::select(glbcc_risk, ideol, income, age)` and drop all the missing values (`drop_na()`)"
+	2. "finally, correlate all the remaining variable values (via the `cor()` command)"
+	
+	::::
+
+
+
+
+```
+
+
+
+[@cruy21-multiple]
+
+
+# **1. Introduction and Purpose of the SRN**
+
+## **1.1 Purpose of the Document**
+This **Scientific Request Note (SRN)** serves as a preparatory document for discussions with **IJM and other key stakeholders** regarding the application of **Multiple Systems Estimation (MSE)** and the **Network Scale-Up Method (NSUM)** for estimating the prevalence of human trafficking originating from Romania and Bulgaria.
+
+### **Key Objectives:**
+1. **Clarify Research Parameters and Open Questions**
+   - Define the **population or subpopulation** of interest.
+   - Establish the **scope of human trafficking cases** (cross-border, returnees, internal trafficking).
+   - Identify **available datasets**, data controllers, and security requirements.
+   - Determine **whether MSE is feasible** and explore alternative methods if necessary.
+
+2. **Preliminary Development of the Prevalence Research Protocol**
+   - Outline a **structured framework for data collection, processing, and analysis**.
+   - Address **privacy, security, and ethical considerations**.
+   - Examine alternative prevalence estimation methods if MSE is not viable.
+
+This document will serve as a **research roadmap** leading into the upcoming **IJM meeting**, ensuring that key issues are addressed and next steps are clearly defined.
+
+---
+
+# **2. Key Open Questions**
+
+## **2.1 Defining the Population of Interest**
+### **Scope of Measurement**
+- Should IJM estimate **only returning victims**, or **all individuals trafficked out of Romania and Bulgaria**, regardless of whether they return?
+- Should the study focus **exclusively on trafficking cases involving the six designated destination countries** (UK, Germany, France, Netherlands, Spain, Italy), or **all cross-border cases**?
+- Should we attempt to **track multiple instances of trafficking** for the same individuals?
+
+### **Definition of Human Trafficking for Inclusion**
+- Should the **UN Palermo Protocol** definition be applied, or does IJM prefer a **more restrictive definition**?
+- Should we include all recognized forms of human trafficking, including:
+  - **Forced labor**
+  - **Sexual exploitation**
+  - **Organ trafficking**
+  - **Forced begging**
+  - **Forced marriage**
+- Should the study align with the **IOM and UNODC’s ICS-TIP classification system**?
+
+---
+
+## **Literature Review: Multiple Systems Estimation (MSE) for Human Trafficking in Europe, with a Focus on Romania and Bulgaria**
+
+#### **1. Introduction**
+
+Human trafficking remains a significant issue in Europe, particularly in Eastern European countries such as Romania and Bulgaria, which serve as major source countries for victims. Estimating the true prevalence of trafficking is challenging due to the hidden nature of the crime. Multiple Systems Estimation (MSE) has emerged as a valuable statistical tool for assessing the number of undetected victims by analyzing overlapping records from different sources. This review focuses on the application of MSE in Romania and Bulgaria, discussing its methodological strengths, challenges, and policy implications.
+
+#### **2. The Role of MSE in Estimating Human Trafficking in Europe**
+
+MSE is an advanced extension of the capture-recapture method, originally used in ecological studies to estimate wildlife populations. In human trafficking research, MSE helps estimate the number of victims by analyzing overlaps between different data sources such as police records, NGO reports, and governmental databases.
+
+MSE has been applied in several European countries, including the **Netherlands, the United Kingdom, Romania, and Serbia**, to provide more accurate estimates of trafficking victims beyond those officially reported (Durgana & van Dijk, 2021)​. Studies suggest that official numbers drastically underrepresent the actual scale of trafficking due to the clandestine nature of the crime, differences in data collection practices, and victims' reluctance to come forward (Cruyff et al., 2021)​.
+
+#### **3. Application of MSE in Romania**
+
+##### **3.1 Overview of Human Trafficking in Romania**
+
+Romania is one of the largest source countries for trafficking victims in Europe. Romanian victims are often exploited for forced labor, sexual exploitation, and forced begging, both domestically and abroad, particularly in **Western European countries such as Germany, the UK, and Italy** (Van der Heijden, 2018)​.
+
+##### **3.2 Findings from MSE Studies in Romania**
+
+A study conducted by **Van der Heijden (2018)** applied MSE to estimate the number of presumed trafficking victims in Romania. The key findings include:
+
+* **Underreporting**: The estimated number of victims was approximately **50% higher** than the officially recorded cases.
+* **Gender Disparity**: The majority of victims were female, with a victimization rate of **9.5 per 100,000 females** compared to **2.6 per 100,000 males**.
+* **Forms of Exploitation**: Sexual exploitation accounted for **60% of cases**, followed by forced labor (**30%**) and forced begging (**10%**).
+* **Domestic vs. International Trafficking**: While Romania is predominantly a source country for international trafficking, **40% of trafficking cases occurred domestically**​.
+
+The study also highlighted the importance of improving **record-linking methodologies**, as victims often appear in multiple databases, such as those maintained by law enforcement agencies, NGOs, and social services.
+
+#### **4. The Case of Bulgaria**
+
+While Bulgaria has similar trafficking patterns to Romania, there is limited research on the use of MSE for trafficking victim estimation in the country. However, given the strong regional similarities, it is likely that an MSE approach in Bulgaria would yield similar results in terms of **underestimation of official statistics** and **gendered patterns of victimization**.
+
+#### **5. Methodological Challenges in MSE for Human Trafficking**
+
+Despite its advantages, MSE faces several challenges when applied to human trafficking data:
+
+* **Data Fragmentation**: Different institutions (e.g., police, NGOs, shelters) use **inconsistent victim definitions** and reporting standards, leading to incomplete overlaps in datasets (Banks & Mokel, 2023)​.
+* **Minimal Overlap**: MSE relies on the assumption that multiple sources capture some of the same individuals, but in **human trafficking cases, overlaps are often minimal**, reducing estimation accuracy (Far et al., 2021)​.
+* **Dependence Between Data Sources**: The assumption of statistical independence among datasets is often violated because victims identified by one agency (e.g., police) are frequently referred to others (e.g., shelters), leading to **positive dependence** and potential underestimation (Durgana & van Dijk, 2021)​.
+* **Model Selection Uncertainty**: Studies such as those by **Cruyff et al. (2021)** emphasize that **model selection can significantly impact estimates**, as different assumptions about data interactions lead to varied results​.
+
+#### **6. Policy Implications**
+
+The application of MSE in Romania provides critical insights for improving anti-trafficking policies:
+
+* **Better Data Collection**: Authorities should standardize **victim identification criteria** across law enforcement and NGOs to improve data consistency (Banks & Mokel, 2023)​.
+* **Targeted Law Enforcement Efforts**: The findings suggest that female victims of sexual exploitation are the most commonly trafficked, which could guide **law enforcement strategies** to focus on high-risk areas (Far et al., 2021)​.
+* **Enhanced Victim Support**: Since MSE indicates significant underreporting, policymakers should expand **outreach programs** and ensure victims receive adequate legal and psychological support (Durgana & van Dijk, 2021)​.
+
+#### **7. Conclusion**
+
+MSE has proven to be a valuable tool in estimating the hidden number of human trafficking victims, particularly in Romania. The methodology reveals significant underreporting and provides insights into demographic and exploitation patterns, which can inform more effective anti-trafficking policies. While Bulgaria lacks similar MSE-based studies, adopting this approach could help reveal the extent of trafficking in the country. Moving forward, **improving data integration across agencies and refining estimation models** will be key to enhancing the accuracy and impact of MSE in human trafficking research.
+
+* * *
+
+## Data Availability and Access
+
+
+### ** Romanian Data Sources**
+- The **SIMEV dataset**, maintained by **ANITP (National Agency Against Trafficking in Persons)**, has been used in previous MSE studies (**Van Dijk et al., 2021**).
+- What **data fields** are available for record linkage (e.g., age, gender, trafficking route, type of trafficking)?
+- What **other datasets** exist that may supplement SIMVE (e.g., **NGO databases, police records, IOM statistics**)?
+
+## **3.2 Bulgarian Data Sources**
+- The **National Commission for Combating Trafficking in Human Beings (CCTHB)** maintains trafficking records, but data **availability and structure** remain unclear.
+- If **Bulgaria lacks sufficient data**, should we use **NSUM or another estimation approach**?
+
+## **3.3 Data Access and Security Considerations**
+- What formal agreements (**MOUs, NDAs, data-sharing contracts**) are required for dataset access?
+- What are the **security and privacy constraints** for handling trafficking victim data?
+- Should data processing be restricted to **secure data pods**?
+
+---
+
+# **4. Feasibility of MSE for Prevalence Estimation**
+
+## **4.1 Minimum Data Requirements**
+- MSE requires **multiple independent data sources** containing **overlapping records**.
+- What is the **minimum number of datasets** required for **reliable MSE estimates**?
+
+## **4.2 Potential Barriers to MSE Implementation**
+- If **data from Bulgaria is insufficient**, should we **prioritize NSUM**?
+- If datasets **lack standardized formats**, who will be responsible for **data harmonization**?
+
+## **4.3 Validation of MSE Estimates**
+- What **external validation sources** exist (**Eurostat, UNODC, IOM statistics**)?
+- Can trafficking victim data from **destination countries** (UK, France, Germany, etc.) be accessed for **cross-verification**?
+
+---
+
+
+
+
+
+
+
+
+
+
+
+# Preliminary Draft, Prevalence Research Protocol
+
+
+
+Baseline Measurement for IJM’s European Anti-Trafficking Program
+----------------------------------------------------------------
+
+### **1. Project Overview**
+
+#### **1.1 Research Aims and Objectives**
+
+The prevalence estimation component of this project aims to produce rigorous, defensible estimates of the number of individuals trafficked from Romania and Bulgaria into six Western European destination countries: the United Kingdom, the Netherlands, Germany, Italy, Spain, and France. The core research objectives include:
+
+* **Estimating the prevalence** of cross-border trafficking from Romania and Bulgaria.
+* **Assessing variations in victim demographics** across source and destination countries.
+* **Comparing estimates from two methodologies**: Multiple Systems Estimation (MSE) and Network Scale-Up Method (NSUM).
+
+#### **1.2 Research Approach**
+
+This component of the project employs a mixed-methods approach, using both secondary administrative data (MSE) and primary survey-based data (NSUM). These two methods serve complementary roles:
+
+* **MSE** relies on the availability of administrative lists of trafficking victims from multiple sources in Romania and Bulgaria.
+* **NSUM** generates prevalence estimates through structured population surveys, fielded by professional survey firms (e.g., IPSOS) in Romania and Bulgaria.
+
+* * *
+
+### **5. Multiple Systems Estimation (MSE)**
+
+#### **5.1 Overview**
+
+MSE is a statistical technique that estimates the size of a hidden population by analyzing overlapping records from multiple independent administrative lists. This approach has been widely used in human rights research, including estimating the prevalence of trafficking victims in the UK, Netherlands, and Romania​Research protocols V1 2….
+
+#### **5.2 Data Sources**
+
+MSE requires multiple administrative lists containing records of identified trafficking victims. The key data sources anticipated for this study include:
+
+* **Romania**: The National Agency Against Trafficking in Persons (ANITP), NGOs, border police, and foreign authorities.
+* **Bulgaria**: The National Commission for Combatting Trafficking in Human Beings (CCTHB), NGOs, and international organizations.
+* **Other sources**: Law enforcement, consular services, victim support organizations.
+
+#### **5.3 Data Processing and Matching**
+
+A structured data processing pipeline will be implemented:
+
+1. **List Cleaning**: Removing duplicates, correcting errors, and ensuring data integrity.
+2. **Record Linkage**: Using anonymized identifiers to match individuals appearing on multiple lists.
+3. **Estimation Models**: Applying Poisson generalized log-linear models to estimate the total number of victims, including those not recorded in any list​Research protocols V1 2….
+
+#### **5.4 Assumptions and Limitations**
+
+* **Independence Assumption**: Lists must be independently compiled, though adjustments will be made where necessary.
+* **Coverage Issues**: Some victims may not be recorded due to underreporting by certain organizations.
+* **Data Availability**: MSE relies on access to sufficient administrative data, which may be subject to restrictions.
+
+* * *
+
+### **6. Network Scale-Up Method (NSUM)**
+
+#### **6.1 Overview**
+
+NSUM estimates the prevalence of trafficking victims by leveraging respondents’ knowledge of their social networks. Respondents report the number of individuals they know within specific demographic categories, including those who have been trafficked​Technical Proposal (FIN….
+
+#### **6.2 Survey Implementation**
+
+* **Survey Design**: The survey will include questions on respondents' personal network size and the number of people they know who match trafficking-related indicators.
+* **Sampling Strategy**: A stratified random sample will be used, ensuring representation across urban/rural areas and key demographic segments.
+* **Survey Administration**: The survey will be fielded in Romania and Bulgaria by professional survey firms (e.g., IPSOS).
+
+#### **6.3 Ethical Considerations**
+
+* **Minimizing Risk**: Questions will avoid direct references to known trafficking victims, instead relying on indirect estimation.
+* **Respondent Protection**: Enumerators will be trained to handle distress protocols and refer respondents to support services as needed​Research protocols V1 2….
+* **Confidentiality**: No identifying data will be collected; responses will be stored securely.
+
+* * *
+
+### **8. Ethical Considerations**
+
+The ethical framework governing this research aligns with IJM’s Ethical Research Standards and University of Nottingham policies. Relevant considerations include:
+
+* **Annex 10**: NHS Information & Consent – detailing the ethical guidelines for survey participants​Research protocols V1 2….
+* **Annex 13**: Safeguarding Policies & Protocols – outlining risk mitigation strategies to protect research participants​Research protocols V1 2….
+* **Annex 14**: Risk Management Framework – providing an assessment of potential research risks and mitigation plans​Research protocols V1 2….
+
+* * *
+
+<!-- ### **Annexes**
+
+* **Annex 1**: Finalized list of MSE data sources.
+* **Annex 2**: NSUM survey questionnaire and methodology.
+* **Annex 3**: Data protection plan.
+* **Annex 4**: Ethical approval documentation.
+
+* * * -->
+
+This draft ensures compliance with the structure and 
+
+### **Bibliography**
+
+* Banks, D., & Mokel, E. (2023). _Multiple Systems Estimation and Human Trafficking_. CHANCE, 36(4), 12-14. https://doi.org/10.1080/09332480.2023.2290944&#8203;:contentReference[oaicite:11]{index=11}.
+* Cruyff, M., Overstall, A., Papathomas, M., & McCrea, R. (2021). _Multiple System Estimation of Victims of Human Trafficking: Model Assessment and Selection_. Crime & Delinquency, 67(13-14), 2237-2253. https://doi.org/10.1177/0011128720981908&#8203;:contentReference[oaicite:12]{index=12}.
+* Durgana, D., & van Dijk, J. (2021). _Measuring the Hidden Numbers of Human Trafficking Through Multiple Systems Estimation: Lessons Learned and Challenges Outstanding_. Crime & Delinquency, 67(13-14), 2188-2212. https://doi.org/10.1177/0011128720987197&#8203;:contentReference[oaicite:13]{index=13}.
+* Far, S. S., King, R., Bird, S., Overstall, A., Worthington, H., & Jewell, N. (2021). _Multiple Systems Estimation for Modern Slavery: Robustness of List Omission and Combination_. Crime & Delinquency, 67(13-14), 2213-2236. https://doi.org/10.1177/0011128720951429&#8203;:contentReference[oaicite:14]{index=14}.
+* Van der Heijden, P. (2018). _Monitoring Target 16.2 of the United Nations Sustainable Development Goals: Multiple Systems Estimation of the Numbers of Presumed Victims of Trafficking in Persons in Romania_. UNODC. https://doi.org/10.1177/0011128720987197&#8203;:contentReference[oaicite:15]{index=15}.
+
+
+
+
+
+
+
+# References {-}
+
+::: {#refs}
+:::
+
+
