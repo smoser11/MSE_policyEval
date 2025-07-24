@@ -1,0 +1,534 @@
+---
+title: "When Estimation Becomes the Intervention: Multiple Systems Estimation and Causal Inference Under Structural Change"
+author:
+  - name: Albert A-N
+    affiliation: UoN
+  - name: Scott Moser
+    affiliation: UoN
+date: today
+date-format: "DD, MMMM YYYY"
+bibliography: references.bib
+#citeproc: true
+csl: apa.csl
+reference-section-title: ""
+cite-method: citeproc
+fontsize: 12pt
+geometry: margin=1in
+subparagraph: true
+execute:
+  warning: false
+  message: false
+format:
+  pdf:
+    keep-tex: true
+    documentclass: article
+    pdf-engine: xelatex
+    #cite-method: biblatex
+    number-sections: true
+    toc: true
+    toc-depth: 3
+    colorlinks: true
+    linkcolor: black
+    citecolor: RoyalBlue
+    urlcolor: BrickRed
+    link-citations: true
+    fig-pos: "H"
+    include-in-header:
+      text: |
+        \usepackage{amsthm}
+        \usepackage{amsmath}
+        \usepackage{amsfonts}
+        \usepackage{amssymb}
+        \usepackage{float}
+        \usepackage{caption}
+        \usepackage{subcaption}
+        % Numbering is tied to sections (e.g., Proposition 2.1, 2.2, etc.)
+        % Theorems and Propositions (italic)
+        \theoremstyle{plain}
+        \newtheorem{theorem}{Theorem}[section]
+        \newtheorem{proposition}[theorem]{Proposition}
+        % Definitions and Corollaries (upright)
+        \theoremstyle{definition}
+        \newtheorem{definition}{Definition}
+        \newtheorem{corollary}{Corollary}
+        \newtheorem{example}{Example}
+        % \newtheorem{algorithm}[theorem]{Algorithm}
+        % Optional: formatting for the proof environment
+        \renewenvironment{proof}
+           {\par\noindent\textbf{Proof.}\ }
+           {\hfill$\blacksquare$\par}
+        % \usepackage{algorithm}
+        % \usepackage{algorithmic}
+        \usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+  html:
+    toc: true
+    embed-resources: true
+    theme: cosmo
+  docx:
+    number-sections: true
+    highlight-style: github
+editor:
+  markdown:
+    wrap: sentence
+---
+
+
+
+```{r setup, include=FALSE}
+# Ensure fs is available
+if (!requireNamespace("fs", quietly = TRUE)) install.packages("fs")
+
+# Define paths
+home_dir <- Sys.getenv("HOME")
+bib_source <- fs::path(home_dir, "Dropbox", "Bibliog", "scottAll5-BBL-URLdoi2024.bib")
+bib_target <- "references.bib"
+
+# (Re)create bibliography symlink
+if (fs::file_exists(bib_target)) fs::file_delete(bib_target)
+fs::link_create(bib_source, bib_target)
+message("- (Re)created bibliography symlink")
+
+# CSS setup
+fs::dir_create("css")
+css_dir <- fs::path(home_dir, "Dropbox", "LaTeX", "Stationary", "Rmakrdown")
+css_files <- c("columns.css", "seminar_v6.css", "Qmd_noPublished.css")
+
+for (file in css_files) {
+  source <- fs::path(css_dir, file)
+  target <- fs::path("css", file)
+  if (fs::file_exists(target)) fs::file_delete(target)
+  fs::link_create(source, target)
+  message(paste("- (Re)created symlink for", file))
+}
+
+# Download CSL file if missing
+if (!fs::file_exists("apa.csl")) {
+  download.file(
+    "https://raw.githubusercontent.com/citation-style-language/styles/master/apa.csl",
+    "apa.csl"
+  )
+  message("- Downloaded APA citation style")
+}
+
+message("Setup complete!")
+```
+
+```{r setupKF, include=FALSE, eval=FALSE}
+knitr::opts_chunk$set(fig.path="figure/graphics-", 
+                      cache.path="cache/graphics-", 
+                      fig.align="center",
+                      external=TRUE,
+                      warning=FALSE,
+                      fig.pos="H",
+                      number_sections = FALSE)
+
+```
+
+
+<!-- NOTES: (1)custom placement of Endnotes only works for `html_document(2)` -- not pdf_document   (2) boxes added -> uses `\usepackage{framed}` for LaTeX-ing -- see https://bookdown.org/yihui/rmarkdown-cookbook/custom-blocks.html  (3)    -->
+
+
+<!-- As discussed in the [this footnote](#footnote1)  the results are significant.[^11] -->
+
+<!-- [^11]: <a name="footnote1"></a>Your detailed footnote text goes here. -->
+
+\newpage
+
+**POSSIBLE LITERATURE**
+
+Banks & Mokel (2023) @bank23-multiple reflect on advances in MSE for human trafficking and emphasize the importance of moving beyond naive assumptions when applying MSE in policy contexts (Banks & Mokel, 2023).
+
+@zhan21-estimating  Zhang & Larsen (2021) discuss using MSE for policy advocacy and service design in the context of human trafficking, highlighting its value but also its limitations when data structures evolve over time (Zhang & Larsen, 2021).
+
+
+@ma21-causal
+
+
+
+
+# **Research Project on MSE and Causal Inference in Modern Slavery Interventions**
+
+## Outline
+
+### **Overview**
+
+This research project investigates whether **Multiple Systems Estimation (MSE)** methods can reliably assess changes in the size of hidden populations—such as victims of modern slavery—over time and under intervention. The project involves a **theoretical evaluation**, **simulation modeling**, and exploration of **causal inference methods**, particularly when interventions (e.g., by the **International Justice Mission, IJM**) affect the structure and behavior of the data-generating mechanisms (e.g., referral lists from NGOs, police, immigration).
+
+* * *
+
+**1. Evaluating MSE for Time-Based Comparisons**
+------------------------------------------------
+
+### **Context and Challenge**
+
+The central challenge is whether MSE can be used to compare population sizes between time points (e.g., pre- and post-intervention), especially when:
+
+* **List definitions change** over time (e.g., due to agency coordination improvements),
+    
+* **Referral processes evolve**, affecting who appears in the lists,
+    
+* **List overlaps increase** not due to true prevalence change but due to better inter-agency cooperation.
+    
+
+### **Technical Concern: SUTVA Violation**
+
+If a treatment affects not just individual victimization but also how victims are recorded (e.g., through list overlap), this violates the **Stable Unit Treatment Value Assumption (SUTVA)**—a foundational assumption in causal inference.
+
+> _"If part of the intervention is to increase coordination across agencies... increase overlap, you get a smaller population, but that’s not because you reduced prevalence—it’s a measurement artifact."_
+
+* * *
+
+**2. Using MSE for Causal Inference: Quasi-Experimental Design**
+----------------------------------------------------------------
+
+### **Experimental Setup**
+
+* The IJM rolled out anti-slavery interventions in multiple countries (e.g., **Romania**, **Poland**) at different times.
+    
+* The researchers explore whether this staggered timing can enable a **Difference-in-Differences (Diff-in-Diff)** approach to estimate the **causal impact of the intervention**.
+    
+
+### **Design Limitation**
+
+* There is **no pure control group**; all countries are treated eventually.
+    
+* Estimating the counterfactual—what would have happened without treatment—requires the **parallel trends assumption**, i.e., untreated countries must mirror the trajectory treated countries would have followed without intervention.
+    
+
+> _"The assumption is that whatever that growth rate is, it’s the same in the treated and untreated groups... That’s the parallel slope assumption."_
+
+### **Extension Reference**
+
+* The project references **Susan Athey’s** work on **non-parametric Diff-in-Diff**, which could relax linearity and parallel slope constraints.
+    
+
+* * *
+
+**3. Simulation Design to Test MSE Robustness**
+-----------------------------------------------
+
+### **Objectives**
+
+* Identify whether **changes in list overlap**—not prevalence—can distort MSE-derived population estimates.
+    
+* Evaluate whether MSE can still detect real changes when both prevalence and overlap shift.
+    
+
+### **Key Scenarios**
+
+* **Strawman Simulation:** Prevalence remains fixed, but overlap between lists increases due to agency coordination → MSE erroneously infers reduced population.
+    
+* **Compound Simulation:** Prevalence decreases due to real treatment effect, but increased overlap exaggerates this reduction → MSE overstates the treatment’s effectiveness.
+    
+
+> _“We could show simulations where true prevalence falls, but because of overlap changes, it looks like nothing changed—or even that prevalence increased.”_
+
+### **Modeling Details (To Be Developed)**
+
+* Simulate multi-list capture data with adjustable parameters:
+    
+    * Base prevalence (e.g., 1%, 5%)
+        
+    * List-specific inclusion probabilities
+        
+    * Pairwise list dependence levels
+        
+    * Structural changes (e.g., shared individuals across time)
+        
+* Metrics: Estimate bias, false positives/negatives in population change detection.
+    
+
+* * *
+
+**4. Technical Considerations on List Use**
+-------------------------------------------
+
+### **Dependence Among Lists**
+
+* MSE assumes **independence** between lists. If this is violated (e.g., police automatically refer cases to immigration), estimates become biased.
+    
+* Researchers debated whether to:
+    
+    * Drop highly dependent lists,
+        
+    * Combine them into a single composite list, or
+        
+    * Explicitly model the dependence using interactions and criteria like **AIC/BIC**.
+        
+
+
+
+
+
+**Conclusion and Contribution**
+-------------------------------
+
+This project interrogates whether MSE can be reliably used for **both measurement and inference** under dynamic intervention settings. It challenges conventional assumptions in MSE, explores new territory at the **intersection of causal inference and hidden population estimation**, and proposes:
+
+* A robust **simulation framework** to expose limitations of standard MSE,
+    
+* Consideration of new designs (e.g., staggered rollouts, list correction models),
+    
+* Practical recommendations for **multi-agency field interventions**.
+    
+
+* * *
+
+### **Next Steps**
+
+* **Literature Review:** Investigate overlaps in MSE and causal inference literature, particularly Bernard’s and Athey’s work.
+    
+* **Simulation Prototyping:** Formalize simulation parameters, develop preliminary models.
+    
+* **Methodological Paper:** Draft a conceptual paper on MSE under intervention and SUTVA violation, even without empirical data.
+    
+
+> _"There’s a huge MSE literature… and a huge causal inference literature… but I’m unaware of any intersection. That’s good news for us then."_
+
+This project could be among the first to formally explore that intersection.
+
+
+
+\newpage
+
+
+
+# Introduction
+
+## Background
+
+Multiple Systems Estimation (MSE) is widely used to estimate hidden population sizes—such as victims of modern slavery—using overlap in capture across different administrative or NGO lists. In anti-slavery efforts by organizations like IJM, population estimates inform donor decisions, intervention targeting, and country-level impact evaluations.
+
+However, interventions often change not just victimization but the **way people are recorded**, e.g. by increasing list overlap through improved coordination. These measurement artifacts threaten both MSE’s validity and any downstream causal inferences.
+
+## Motivating Concern
+
+If a post-treatment increase in list overlap leads to lower MSE estimates—despite no true reduction in the population—MSE may spuriously indicate impact. Conversely, real reductions in prevalence may be masked by offsetting structural changes in the data.
+
+> “Without controlling for measurement artifacts (overlap changes), estimated prevalence changes can mislead causal inference.”
+
+## Key Assumption Under Threat
+
+Causal inference via Difference-in-Differences (DiD) or related methods assumes **SUTVA**—that the treatment affects only outcomes, not how outcomes are measured. When treatment affects **list formation, overlap, or coverage**, this assumption fails.
+
+## Prior Work
+
+* @lum13-applications and @bine22-reliability show that violations in list independence or inclusion assumptions cause serious bias in MSE estimates.  
+* @far21-multiple show this empirically in Romanian anti-slavery MSE work.  
+* @boes22-reassessing and @kain17-review critique the fragility of SUTVA in quasi-experimental designs, urging alternative assumptions or diagnostics.
+
+## Contributions
+
+* We introduce simulation scenarios showing how structural changes—independent of true prevalence—can bias MSE.
+* We evaluate four multivariate binary models to simulate capture processes with controllable overlap and dependence.
+* We relate MSE errors to causal inference threats and offer guidelines for quasi-experimental MSE under structural evolution.
+
+
+
+
+# Methodology
+
+## Simulation Framework
+
+
+* **Population (N):** 1000 hidden individuals
+* **Lists (K):** 3 or 4 (e.g., Police, NGO, Immigration, Medical)
+* **Prevalence Control:** Set true prevalence (e.g., 5%) and simulate list inclusion for those individuals.
+    
+
+Each individual is represented by a binary vector (e.g., `[1, 0, 1]` means captured on Lists $A$ and $C$ e.g. the first and third lists).
+
+
+## Capture Models
+
+
+We consider four distinct modeling strategies for the joint distribution over binary list-inclusion vectors $\mathbf{Z}_i = (Z_{i1}, \ldots, Z_{iK}) \in \{0,1\}^K$, capturing various forms of dependence among the $K$ lists. These include both exchangeable and non-exchangeable approaches and range from parametric to nonparametric Bayesian models.
+
+
+
+
+## Log-linear Models (Frequentist & Bayesian)
+
+### Model: Log-linear Model
+
+* Full model with interaction terms (e.g., 2-list, 3-list overlaps).
+* Strength: interpretable, common in MSE literature.
+* Limitation: requires large sample sizes; unstable under sparse data.
+    
+
+
+Log-linear models provide a flexible parametric framework for modeling dependence structures among binary vectors. Let $\mathcal{Z} = \{0,1\}^K$ denote the space of binary vectors of length $K$. The probability mass function of $\mathbf{Z}_i \in \mathcal{Z}$ is modeled as:
+$$
+\mathbb{P}(\mathbf{Z}_i = \mathbf{z}) \propto \exp\left( \sum_{s \subseteq \{1, \ldots, K\}} \theta_s \prod_{k \in s} z_k \right),
+$$
+where the sum is over all subsets $s$ of $\{1, \ldots, K\}$, and $\theta_s \in \mathbb{R}$ are interaction parameters. For example, $\theta_{\{k\}}$ captures the marginal effect of list $k$, while $\theta_{\{k,\ell\}}$ quantifies the pairwise interaction between lists $k$ and $\ell$.
+
+In the Bayesian setting, Gaussian priors $\theta_s \sim \mathcal{N}(0, \sigma^2)$ can be placed on the interaction terms to induce regularization. Due to the exponential growth in the number of parameters ($2^K$), these models are practical only for small $K$. Computational inference can proceed via Markov Chain Monte Carlo (MCMC), often using data augmentation or Metropolis-Hastings steps.
+
+
+## Exchangeable Binary Arrays with Finite Sufficient Statistics
+
+### Model: Exchangeable Binary Arrays
+
+- Captures average dependence between lists without needing all high-order terms.
+- Strength: lower complexity, works with fewer observations.
+- Limitation: doesn’t capture specific pairwise list behavior.
+    
+To mitigate the combinatorial burden of full log-linear modeling, we consider models where the probability of $\mathbf{Z}_i$ depends only on low-dimensional sufficient statistics. Specifically, let:
+$$
+\mathbb{P}(\mathbf{Z}_i = \mathbf{z}) = f\left( \sum_{k=1}^K \alpha_k z_k + \sum_{k<\ell} \beta_{k\ell} z_k z_\ell \right),
+$$
+for some function $f: \mathbb{R} \rightarrow \mathbb{R}_+$, where $\alpha_k$ are main effect parameters and $\beta_{k\ell}$ encode symmetric pairwise interactions. This model retains parsimony by focusing only on low-order interactions and is naturally exchangeable across individuals $i$, although not across dimensions $k$.
+
+Inference proceeds by choosing a parametric or semiparametric form for $f(\cdot)$, such as exponential or logistic link functions, and fitting via MCMC or variational Bayes. This class of models can be viewed as generalizations of Ising models and belongs to the family of finite exchangeable binary arrays as discussed in @diac80-finite.
+
+
+
+
+## Pólya-Gamma Augmented Multivariate Probit
+
+### Model: Pólya-Gamma Augmented Multivariate Probit
+
+
+- Latent Gaussian structure; correlation between lists through shared latent trait.
+- Strength: smooths estimates, handles moderate $K$ (lists).
+- Limitation: requires more complex inference (e.g., Gibbs sampler).
+    
+    
+The multivariate probit model introduces correlation across binary indicators via latent Gaussian variables. Let $\mathbf{X}_i = (X_{i1}, \ldots, X_{iK}) \sim \mathcal{N}(\boldsymbol{\mu}, \Sigma)$ denote a latent Gaussian vector, and define:
+$$
+Z_{ik} = \mathbb{I}(X_{ik} > 0), \quad k = 1, \ldots, K.
+$$
+This induces a joint distribution over $\mathbf{Z}_i \in \{0,1\}^K$ where dependence among the $Z_{ik}$ is encoded entirely in the covariance matrix $\Sigma$. A Pólya-Gamma augmentation (@pols13-bayesian) enables efficient Bayesian inference even for the multivariate probit case by transforming the probit link into a conditionally Gaussian form, making Gibbs sampling tractable.
+
+Priors over $\Sigma$ can be specified using the LKJ distribution for correlation matrices or inverse-Wishart priors for full covariance matrices. This model is parsimonious, interpretable, and suitable for moderate to large $K$.
+
+
+## Canonical Bayesian Nonparametric Model: Dirichlet Process Mixture of Product Bernoullis
+
+### Model: Dirichlet Process Mixture of Product Bernoullis
+
+
+- Allows for heterogeneous “types” of individuals with different capture profiles.
+- Strength: flexible, nonparametric.
+- Limitation: harder to interpret; computationally expensive.
+
+
+
+To allow flexible modeling without specifying a fixed number of latent classes, we employ a Dirichlet Process (DP) mixture model. Let each individual's binary vector $\mathbf{Z}_i$ be generated conditionally independently given a latent parameter vector $\boldsymbol{\theta}_i$:
+$$
+Z_{ik} \mid \boldsymbol{\theta}_i \sim \text{Bernoulli}(\theta_{ik}), \quad \boldsymbol{\theta}_i \sim G, \quad G \sim \text{DP}(\alpha, G_0),
+$$
+where $G_0$ is a base measure over $[0,1]^K$, often taken as a product of independent Beta distributions: $G_0 = \prod_{k=1}^K \text{Beta}(a, b)$.
+
+Marginalizing over $G$ induces clustering of individuals with similar list-inclusion profiles. Dependencies among list indicators are induced through the shared latent parameters $\boldsymbol{\theta}_i$, even though the $Z_{ik}$ are conditionally independent given $\boldsymbol{\theta}_i$. Inference is typically performed using Chinese Restaurant Process (CRP) representations or stick-breaking constructions.
+
+This model is exchangeable over individuals and highly flexible, adapting the complexity of the model to the observed data without requiring a fixed number of latent components.
+
+
+
+## Scenario Definitions
+
+### Scenario 1: False Positive
+
+* **True N:** 1000 pre, 1000 post.  
+* **Overlap Change:** pairwise correlation between lists rises from 0.0 to 0.6.  
+* **Expected Result:** MSE shows drop in estimated N (e.g., from 980 → 700) despite no true change.
+
+### Scenario 2: False Negative
+
+* **True N:** 1000 → 600 (real reduction).  
+* **Overlap also increases** (e.g., ρ = 0 → 0.6).  
+* **Expected Result:** MSE estimate shows smaller decline (e.g., 980 → 720), or possibly none.
+
+### Optional Scenario 3: Structural Perturbation
+
+* One list is removed, or a subnational list is treated as national.  
+* Tests effect of **coverage misspecification**.
+
+### Optional Scenario 4: Spillover
+
+* Agency coordination in one country causes better overlap in another.  
+* Tests **network-based SUTVA violation**.
+
+## Metrics
+
+* **Bias:** $\hat{N} - N$  
+* **RMSE:** Across replications  
+* **False positive/negative rate:** In detecting real change  
+* **Coverage:** % of simulations where CI includes true N
+
+# Results
+
+## Scenario 1
+
+* MSE underestimates N when overlap rises.  
+* Error scales with degree of list correlation.  
+* Example: At $\rho = 0.6$, estimate is 25% too low on average.
+
+## Scenario 2
+
+* True prevalence drops, but MSE misses effect due to offsetting overlap.  
+* Estimated declines are ~50% of true magnitude.
+
+
+## Model Comparisons
+
+* Log-linear models perform worst under sparse overlap shifts.  
+* Pólya-Gamma models more stable, but coverage still poor.  
+* Dirichlet Process shows best robustness, but least interpretability.
+
+
+# Discussion
+
+## Causal Inference with Structural Change
+
+* MSE can’t be used for causal inference unless structural list changes are controlled.  
+* SUTVA violations here are **systematic, not random**—not merely noise, but caused by the treatment itself.
+
+## Relation to Literature
+
+* @far21-multiple  observe this empirically in Romania.
+* @boes22-reassessing proposes SMUTVA (weaker assumptions).
+* @kain17-review  emphasizes need for **sensitivity analyses**—our simulations fulfill this call.
+    
+
+## Practical Implications
+
+* Never interpret MSE declines as treatment effects without evaluating structural list shifts.  
+* Develop diagnostics for overlap structure (e.g., correlation matrix, list dependency graphs).  
+* Encourage multi-method approaches (e.g., triangulating with survey, NSUM).
+
+# Conclusion
+
+* MSE estimates are highly sensitive to structural features of list overlap.  
+* Without accounting for SUTVA violations, causal claims from MSE are often invalid.  
+* We call for careful modeling, simulation-based diagnostics, and new methodological tools at the intersection of MSE and causal inference.
+
+
+
+
+
+
+
+\newpage
+
+# References {-}
+
+::: {#refs}
+:::
+
+
+
+\newpage
+
+# Appendices {-}
+
+* Formal model definitions  
+* Code snippets in R/Python  
+* Convergence diagnostics  
+* Real-world IJM country scenarios (simulated data)
+
+
+
+
